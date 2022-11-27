@@ -4,6 +4,7 @@ import 'package:cross_file/src/types/interface.dart';
 import 'package:get/get.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:video_compressor/app/modules/home/controllers/compression_controller.dart';
+import 'package:video_compressor/app/modules/home/controllers/directory_controller.dart';
 
 class HomeController extends GetxController {
   //TODO: Implement HomeController
@@ -14,11 +15,8 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print("onInit");
-
-    _subscription = VideoCompress.compressProgress$.subscribe((progress) {
-      print('progress: $progress');
-    });
+    final dirController = Get.put(DirectoryController());
+    dirController.createFolder();
   }
 
   @override
@@ -29,12 +27,11 @@ class HomeController extends GetxController {
   @override
   void onClose() {
     super.onClose();
-    print("onClose");
-    _subscription.unsubscribe();
   }
 
   void videoSelected(File video) {
     final compressionController = Get.put(CompressionController());
+    isVideoPicked.value = false;
     isVideoPicked.value = true;
     this.SelectedVideo = video;
     // compressionController.compressVideo(SelectedVideo);

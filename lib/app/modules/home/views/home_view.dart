@@ -15,7 +15,7 @@ class HomeView extends GetView<HomeController> {
   final ImagePicker _picker = ImagePicker();
   final compressionController = Get.put(CompressionController());
   final videoController = Get.put(VideoController());
-  
+
   final outputFileNameController = TextEditingController();
 
   // Timer _timer;
@@ -43,16 +43,16 @@ class HomeView extends GetView<HomeController> {
           Obx(
             () => controller.isVideoPicked.value
                 ? Column(
-                  children: [
-                    Row(
+                    children: [
+                      Row(
                         children: [
                           qualitySelectorWidget(),
                           startCompressionWidget(),
                         ],
                       ),
-                    const Text("Choose video quality"),
-                  ],
-                )
+                      const Text("Choose video quality"),
+                    ],
+                  )
                 : const SizedBox(height: 100),
           ),
 
@@ -134,22 +134,22 @@ class HomeView extends GetView<HomeController> {
 
   // after info
   Widget qualitySelectorWidget() {
-    return Obx(()=>Flexible(
-      child: SfSlider(
-        min: 0.0,
-        max: 100.0,
-        stepSize: 5,
-        value: compressionController.quality.value,
-        interval: 20,
-        showTicks: true,
-        showLabels: true,
-        enableTooltip: true,
-        minorTicksPerInterval: 1,
-        onChanged: (dynamic value) {
-          compressionController.changeQuality(value);
-        },
-      ),
-    ));
+    return Obx(() => Flexible(
+          child: SfSlider(
+            min: 0.0,
+            max: 100.0,
+            stepSize: 20,
+            value: compressionController.quality.value,
+            interval: 20,
+            showTicks: true,
+            showLabels: true,
+            enableTooltip: true,
+            minorTicksPerInterval: 1,
+            onChanged: (dynamic value) {
+              compressionController.changeQuality(value);
+            },
+          ),
+        ));
   }
 
   // with quality selector row
@@ -161,7 +161,6 @@ class HomeView extends GetView<HomeController> {
       backgroundColor: const Color(0xFFA52A2A),
     );
   }
-
 
   // show in row of floating action button when compressed
   // it should lit automatically till user clicks it.
@@ -218,7 +217,9 @@ class HomeView extends GetView<HomeController> {
                 child: TextField(
                   controller: outputFileNameController,
                   onSubmitted: (value) {
-                    compressionController.startCompression(outputFileNameController.text, controller.SelectedVideo);
+                    _startCompressionAndDisplayResultToast(
+                        outputFileNameController.text,
+                        controller.SelectedVideo);
                     Get.back();
                   },
                   onChanged: (value) {
@@ -246,7 +247,9 @@ class HomeView extends GetView<HomeController> {
               ),
               IconButton(
                   onPressed: () {
-                    compressionController.startCompression(outputFileNameController.text, controller.SelectedVideo);
+                    compressionController.startCompression(
+                        outputFileNameController.text,
+                        controller.SelectedVideo);
                     Get.back();
                   },
                   icon: const Icon(
@@ -256,5 +259,19 @@ class HomeView extends GetView<HomeController> {
             ],
           ),
         ));
+  }
+
+  void _startCompressionAndDisplayResultToast(
+      String text, File selectedVideo) async {
+    List result = await compressionController.startCompression(
+        outputFileNameController.text, controller.SelectedVideo);
+
+    if (result.first == -1) {
+      print("Errors");
+      Get.snackbar("Compression result", "Compression failed");
+    } else {
+      print("success");
+      Get.snackbar("Compression Successful file location", result.last);
+    }
   }
 }
