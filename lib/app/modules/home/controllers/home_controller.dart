@@ -13,7 +13,7 @@ class HomeController extends GetxController {
   late File SelectedVideo;
   late Subscription _subscription;
 
-  var isDarkMode;
+  bool isDarkMode = false;
 
   @override
   void onInit() {

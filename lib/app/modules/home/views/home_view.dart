@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
+import 'package:video_compressor/app/modules/history/views/history_view.dart';
 import 'package:video_compressor/app/modules/home/controllers/compression_controller.dart';
 import 'package:video_compressor/app/modules/home/controllers/video_controller.dart';
 
@@ -58,7 +59,7 @@ class HomeView extends GetView<HomeController> {
                   style: TextStyle(color: Colors.white),
                 ),
               ),
-              PopupMenuItem<int>(          
+              PopupMenuItem<int>(
                 value: 1,
                 child: const Text(
                   "Folder Name",
@@ -110,9 +111,9 @@ class HomeView extends GetView<HomeController> {
 
           // when video is selected, show quality picker
           Obx(
-            () => controller.isVideoPicked.value 
-                  && !compressionController.isVideoinCompression.value 
-                    && !compressionController.isVideoCompressed.value
+            () => controller.isVideoPicked.value &&
+                    !compressionController.isVideoinCompression.value &&
+                    !compressionController.isVideoCompressed.value
                 ? Column(
                     children: [
                       Row(
@@ -129,8 +130,8 @@ class HomeView extends GetView<HomeController> {
 
           // while video is compressing show progressbar or hide progress
           Obx(
-            () => compressionController.isVideoinCompression.value 
-            && compressionController.isVideoinCompression.value
+            () => compressionController.isVideoinCompression.value &&
+                    compressionController.isVideoinCompression.value
                 ? Column(
                     children: [
                       Row(
@@ -148,8 +149,7 @@ class HomeView extends GetView<HomeController> {
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Obx(() => 
-          compressionController.isVideoCompressed.value
+          Obx(() => compressionController.isVideoCompressed.value
               ? shareCompressedFileWidget()
               : const SizedBox()),
           videoPickerWidget(),
@@ -253,7 +253,6 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-
   // after quality selector.
   Widget compressionProgressWidget() {
     return Flexible(
@@ -275,7 +274,6 @@ class HomeView extends GetView<HomeController> {
             ),
           ],
         ),
-      
       ),
     );
   }
@@ -385,19 +383,22 @@ class HomeView extends GetView<HomeController> {
     //   print("Errors");
     //   Get.snackbar("Compression result", "Compression failed");
     // } else {
-      // print("success");
-      // Get.snackbar("Compression Successful file location", result.last);
+    // print("success");
+    // Get.snackbar("Compression Successful file location", result.last);
     // }
   }
-  
+
   void _sharePickedFile() {
-      Share.shareXFiles([XFile(compressionController.outputFileName)],
-          subject: "Compressed Image File");
+    Share.shareXFiles([XFile(compressionController.outputFileName)],
+        subject: "Compressed Image File");
   }
-  
-  void _historyScreen() {}
-  
+
+  void _historyScreen() {
+    Get.to(() => HistoryView(),
+        duration: const Duration(seconds: 2), transition: Transition.zoom);
+  }
+
   void _chooseFolderName() {}
-  
+
   void _aboutUs() {}
 }
