@@ -5,12 +5,15 @@ import 'package:get/get.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:video_compressor/app/modules/home/controllers/compression_controller.dart';
 import 'package:video_compressor/app/modules/home/controllers/directory_controller.dart';
+import 'package:video_compressor/app/modules/home/controllers/video_controller.dart';
 
 class HomeController extends GetxController {
   //TODO: Implement HomeController
   var isVideoPicked = false.obs;
   late File SelectedVideo;
   late Subscription _subscription;
+
+  var isDarkMode;
 
   @override
   void onInit() {
@@ -30,6 +33,7 @@ class HomeController extends GetxController {
   }
 
   void videoSelected(File video) {
+    resetVariables();
     final compressionController = Get.put(CompressionController());
     isVideoPicked.value = false;
     isVideoPicked.value = true;
@@ -40,6 +44,14 @@ class HomeController extends GetxController {
 
   void resetVariables() {
     isVideoPicked.value = false;
-    update();
+    final compressionController = Get.put(CompressionController());
+    final videoController = Get.put(VideoController());
+
+    compressionController.isVideoCompressed.value = false;
+    compressionController.isVideoinCompression.value = false;
+    videoController.isPlaying.value = false;
+    videoController.onTouch.value = false;
   }
+
+  toggleDarkMode() {}
 }
