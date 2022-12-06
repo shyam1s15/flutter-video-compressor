@@ -4,11 +4,15 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
+import 'package:url_launcher/url_launcher.dart';
+// import 'package:url_launcher/url_launcher.dart';
 import 'package:video_compressor/app/modules/history/views/history_view.dart';
 import 'package:video_compressor/app/modules/home/controllers/compression_controller.dart';
+import 'package:video_compressor/app/modules/home/controllers/directory_controller.dart';
 import 'package:video_compressor/app/modules/home/controllers/video_controller.dart';
 
-import 'package:share_plus/share_plus.dart';
+// import 'package:share_plus/share_plus.dart';
+import 'package:share_extend/share_extend.dart';
 
 import '../controllers/home_controller.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,6 +24,9 @@ class HomeView extends GetView<HomeController> {
   final videoController = Get.put(VideoController());
 
   final outputFileNameController = TextEditingController();
+
+  final folderNameController = TextEditingController();
+  final controller = Get.put(HomeController());
 
   // Timer _timer;
 
@@ -37,9 +44,7 @@ class HomeView extends GetView<HomeController> {
                 case 0:
                   _historyScreen();
                   break;
-                case 1:
-                  _chooseFolderName();
-                  break;
+
                 case 3:
                   _aboutUs();
                   break;
@@ -57,34 +62,6 @@ class HomeView extends GetView<HomeController> {
                 child: const Text(
                   "History",
                   style: TextStyle(color: Colors.white),
-                ),
-              ),
-              PopupMenuItem<int>(
-                value: 1,
-                child: const Text(
-                  "Folder Name",
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              PopupMenuItem<int>(
-                onTap: () => controller.toggleDarkMode(),
-                value: 2,
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    const Text(
-                      "Toggle Theme",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Icon(
-                        controller.isDarkMode
-                            ? Icons.dark_mode
-                            : Icons.light_mode,
-                      ),
-                    ),
-                  ],
                 ),
               ),
               const PopupMenuItem<int>(
@@ -283,7 +260,7 @@ class HomeView extends GetView<HomeController> {
     return Column(
       children: [
         FloatingActionButton.extended(
-          onPressed: () => _getxDialogMenuFileName(),
+          onPressed: () => compressionController.cancelCompression(),
           label: const Text('Cancel'),
           icon: const Icon(Icons.cancel),
           backgroundColor: const Color(0xFFA52A2A),
@@ -339,7 +316,7 @@ class HomeView extends GetView<HomeController> {
                     //Do something with the user input.
                   },
                   decoration: const InputDecoration(
-                    hintText: 'image name',
+                    hintText: 'video name',
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                     border: OutlineInputBorder(
@@ -389,8 +366,9 @@ class HomeView extends GetView<HomeController> {
   }
 
   void _sharePickedFile() {
-    Share.shareXFiles([XFile(compressionController.outputFileName)],
-        subject: "Compressed Image File");
+    // Share.shareXFiles([XFile(compressionController.outputFileName)],
+    //     subject: "Compressed Image File");
+    ShareExtend.share(compressionController.outputFileName, "file");
   }
 
   void _historyScreen() {
@@ -398,7 +376,70 @@ class HomeView extends GetView<HomeController> {
         duration: const Duration(seconds: 2), transition: Transition.zoom);
   }
 
-  void _chooseFolderName() {}
+  void _chooseFolderName() {
+    final directoryController = Get.put(DirectoryController());
+    Get.defaultDialog(
+        title: 'Folder Name to save compressed files',
+        titlePadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        content: Container(
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: folderNameController,
+                  onSubmitted: (value) {
+                    directoryController
+                        .changeUserDirectory(folderNameController.text);
+                    Get.back();
+                  },
+                  onChanged: (value) {
+                    //Do something with the user input.
+                  },
+                  decoration: const InputDecoration(
+                    hintText: 'KS',
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(32.0)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Colors.lightBlueAccent, width: 1.0),
+                      borderRadius: BorderRadius.all(Radius.circular(32.0)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Colors.lightBlueAccent, width: 2.0),
+                      borderRadius: BorderRadius.all(Radius.circular(32.0)),
+                    ),
+                  ),
+                ),
+              ),
+              IconButton(
+                  onPressed: () {
+                    // controller.compressFile(outputFileNameController.text);
+                    directoryController
+                        .changeUserDirectory(folderNameController.text);
+                    Get.back();
+                  },
+                  icon: const Icon(
+                    Icons.send,
+                    color: Colors.blue,
+                  )),
+            ],
+          ),
+        ));
+  }
 
-  void _aboutUs() {}
+  void _aboutUs() async {
+    if (await canLaunchUrl(Uri.parse(controller.mySite))) {
+      await launchUrl(Uri.parse(controller.mySite));
+    } else
+      // can't launch url, there is some error
+      throw "Could not launch $controller.mySite";
+  }
+
+  void _toggleTheme() {
+    controller.toggleDarkMode();
+  }
 }

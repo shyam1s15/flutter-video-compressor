@@ -6,7 +6,18 @@ import 'package:video_compressor/app/modules/home/controllers/directory_controll
 class HistoryController extends GetxController {
   //TODO: Implement HistoryController
   final directoryController = Get.put(DirectoryController());
-  late final dirPath;
+  late List<String> dirPath;
+
+  int get countHistory {
+    final _videoDir = Directory(directoryController.getFullAppDirectory());
+    dirPath = _videoDir
+        .listSync()
+        .map((item) => item.path)
+        .where((item) => item.endsWith(".mp4") && !item.split("/").getRange(5, 6).first.contains(".trashed"))
+        .toList(growable: false);
+
+    return dirPath.length;
+  }
 
   @override
   void onInit() {
@@ -25,13 +36,12 @@ class HistoryController extends GetxController {
 
   List<String> getAllMp4Files() {
     final _videoDir = Directory(directoryController.getFullAppDirectory());
+    print(_videoDir.path);
     dirPath = _videoDir
         .listSync()
         .map((item) => item.path)
-        .where((item) => item.endsWith('.mp4'))
+        .where((item) => item.endsWith(".mp4") && !item.split("/").getRange(5, 6).first.contains(".trashed"))
         .toList(growable: false);
-    print(dirPath);
-
     return dirPath;
   }
 }

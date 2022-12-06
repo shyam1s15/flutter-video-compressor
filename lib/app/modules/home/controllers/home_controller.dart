@@ -1,8 +1,7 @@
 import 'dart:io';
 
-import 'package:cross_file/src/types/interface.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:video_compress/video_compress.dart';
 import 'package:video_compressor/app/modules/home/controllers/compression_controller.dart';
 import 'package:video_compressor/app/modules/home/controllers/directory_controller.dart';
 import 'package:video_compressor/app/modules/home/controllers/video_controller.dart';
@@ -11,9 +10,10 @@ class HomeController extends GetxController {
   //TODO: Implement HomeController
   var isVideoPicked = false.obs;
   late File SelectedVideo;
-  late Subscription _subscription;
 
   bool isDarkMode = false;
+
+  String get mySite => "https://shyam-kachhadiya.web.app/";
 
   @override
   void onInit() {
@@ -53,5 +53,13 @@ class HomeController extends GetxController {
     videoController.onTouch.value = false;
   }
 
-  toggleDarkMode() {}
+  void toggleDarkMode() {
+    isDarkMode = !isDarkMode;
+    if (isDarkMode) {
+      Get.changeTheme(ThemeData.dark());
+    } else {
+      Get.changeTheme(ThemeData.light());
+    }
+    update();
+  }
 }

@@ -1,9 +1,10 @@
 import 'dart:io';
 
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
-import 'package:ffmpeg_kit_flutter/return_code.dart';
+// import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter_full_gpl/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter_full_gpl/return_code.dart';
+// import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:get/get.dart';
-import 'package:light_compressor/light_compressor.dart';
 import 'package:video_compressor/app/modules/home/controllers/directory_controller.dart';
 
 class CompressionController extends GetxController {
@@ -49,12 +50,14 @@ class CompressionController extends GetxController {
   void startCompression(String outputFileName, File file) async {
     isVideoinCompression.value = true;
 
-    VideoQuality videoQuality = _getVideoQuality();
-    int frameRate = _getFrameRate(videoQuality);
     final Stopwatch stopwatch = Stopwatch()..start();
     outputFileName = uniqueOutputFileName(outputFileName);
     this.outputFileName = outputFileName;
-    FFmpegKit.execute('-i ${file.path} -c:v mpeg4 $outputFileName')
+    final bitrate = (100 - quality.value) ~/ 2;
+    // FFmpegKit.execute('-i ${file.path} -c:v mpeg4 $outputFileName')
+    FFmpegKit.execute(
+            '-i ${file.path} -vcodec libx264 -crf $bitrate -preset faster -tune film $outputFileName')
+            // '-i ${file.path} -vcodec libx264 -crf $bitrate -preset faster -tune film $outputFileName')
         // FFmpegKit.execute('-i ${file.path} -s 480x320 -acodec mp2 -strict -2 -ac 1 -ar 16000 -r 13 -ab 32000 -aspect 3:2 $outputFileName')
         // FFmpegKit.execute('-i ${file.path} -s 1280x720 -acodec copy -y $outputFileName')
         .then((session) async {
@@ -72,6 +75,9 @@ class CompressionController extends GetxController {
         return [-1];
       } else {
         // ERROR
+        isVideoCompressed.value = false;
+        isVideoinCompression.value = false;
+
         print("error");
         // return [-1];
       }
@@ -96,31 +102,10 @@ class CompressionController extends GetxController {
     }
   }
 
-  VideoQuality _getVideoQuality() {
-    if (quality <= 20) {
-      return VideoQuality.very_low;
-    } else if (quality <= 40) {
-      return VideoQuality.low;
-    } else if (quality <= 60) {
-      return VideoQuality.medium;
-    } else if (quality <= 80) {
-      return VideoQuality.high;
-    } else {
-      return VideoQuality.very_high;
-    }
-  }
-
-  int _getFrameRate(VideoQuality videoQuality) {
-    if (videoQuality == VideoQuality.very_low) {
-      return 10;
-    } else if (videoQuality == VideoQuality.low) {
-      return 15;
-    } else if (videoQuality == VideoQuality.medium) {
-      return 20;
-    } else if (videoQuality == VideoQuality.high) {
-      return 30;
-    } else {
-      return 40;
-    }
+  void cancelCompression() {
+    FFmpegKit.cancel();
+    isVideoinCompression.value = false;
+    isVideoCompressed.value = false;
+    update();
   }
 }
